@@ -5,11 +5,14 @@ import type { AuthorInfo, ChangelogOptions, Commit } from './types';
 
 export async function sendRelease(options: ChangelogOptions, content: string) {
   const headers = getHeaders(options);
-  let url = `https://api.github.com/repos/${options.github}/releases`;
+
+  const github = options.repo.repo!;
+
+  let url = `https://api.github.com/repos/${github}/releases`;
   let method = 'POST';
 
   try {
-    const exists = await $fetch(`https://api.github.com/repos/${options.github}/releases/tags/${options.to}`, {
+    const exists = await $fetch(`https://api.github.com/repos/${github}/releases/tags/${options.to}`, {
       headers
     });
     if (exists.url) {
@@ -26,7 +29,7 @@ export async function sendRelease(options: ChangelogOptions, content: string) {
     tag_name: options.to
   };
 
-  const webUrl = `https://github.com/${options.github}/releases/new?title=${encodeURIComponent(
+  const webUrl = `https://github.com/${github}/releases/new?title=${encodeURIComponent(
     String(body.name)
   )}&body=${encodeURIComponent(String(body.body))}&tag=${encodeURIComponent(String(options.to))}&prerelease=${
     options.prerelease
@@ -53,7 +56,7 @@ export async function sendRelease(options: ChangelogOptions, content: string) {
 function getHeaders(options: ChangelogOptions) {
   return {
     accept: 'application/vnd.github.v3+json',
-    authorization: `token ${options.token}`
+    authorization: `token ${options.tokens.github}`
   };
 }
 
@@ -61,7 +64,7 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
   if (info.login) return info;
 
   // token not provided, skip github resolving
-  if (!options.token) return info;
+  if (!options.tokens.github) return info;
 
   try {
     const data = await $fetch(`https://api.github.com/search/users?q=${encodeURIComponent(info.email)}`, {
@@ -74,7 +77,7 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
 
   if (info.commits.length) {
     try {
-      const data = await $fetch(`https://api.github.com/repos/${options.github}/commits/${info.commits[0]}`, {
+      const data = await $fetch(`https://api.github.com/repos/${options.repo.repo}/commits/${info.commits[0]}`, {
         headers: getHeaders(options)
       });
       info.login = data.author.login;
@@ -136,7 +139,7 @@ export async function resolveAuthors(commits: Commit[], options: ChangelogOption
 
 export async function hasTagOnGitHub(tag: string, options: ChangelogOptions) {
   try {
-    await $fetch(`https://api.github.com/repos/${options.github}/git/ref/tags/${tag}`, {
+    await $fetch(`https://api.github.com/repos/${options.repo.repo}/git/ref/tags/${tag}`, {
       headers: getHeaders(options)
     });
     return true;
