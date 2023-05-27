@@ -6,7 +6,7 @@ import cac from 'cac';
 import { version } from '../package.json';
 import { generate } from './generate';
 import { hasTagOnGitHub, sendRelease } from './github';
-import { isRepoShallow } from './git';
+import { isRepoShallow, getGitPushUrl } from './git';
 import type { ChangelogOptions } from './types';
 
 const cli = cac('githublogen');
@@ -52,6 +52,12 @@ cli.command('').action(async (args: any) => {
     }
 
     if (typeof config.output === 'string') {
+      const pushUrl = getGitPushUrl(config.repo, config.tokens.github);
+
+      if (!pushUrl) {
+        return;
+      }
+
       let changelogMD: string;
       const changelogPrefix = '# Changelog';
       if (existsSync(config.output)) {
@@ -77,9 +83,9 @@ cli.command('').action(async (args: any) => {
 
       await execa('git', ['add', '.']);
 
-      await execa('git', ['commit', '-m', 'docs(projects): CHANGELOG.md'], { cwd });
+      await execa('git', ['commit', '-m', '"docs(projects): CHANGELOG.md"'], { cwd });
 
-      await execa('git', ['push'], { cwd });
+      await execa('git', ['push', pushUrl], { cwd });
     }
 
     if (!(await hasTagOnGitHub(config.to, config))) {

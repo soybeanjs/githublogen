@@ -1,4 +1,4 @@
-import type { RawGitCommit } from './types';
+import type { RawGitCommit, RepoConfig } from './types';
 
 export async function getGitHubRepo() {
   const url = await execCommand('git', ['config', '--get', 'remote.origin.url']);
@@ -76,4 +76,10 @@ export async function getGitDiff(from: string | undefined, to = 'HEAD'): Promise
 
 export function getGitRemoteURL(cwd: string, remote = 'origin') {
   return execCommand('git', [`--work-tree=${cwd}`, 'remote', 'get-url', remote]);
+}
+
+export function getGitPushUrl(config: RepoConfig, token?: string) {
+  if (!token) return null;
+
+  return `https://${token}@${config.domain}/${config.repo}`;
 }
