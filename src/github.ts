@@ -63,29 +63,25 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
   // token not provided, skip github resolving
   if (!options.token) return info;
 
-  const authorInfo = { ...info };
-
   try {
     const data = await $fetch(`https://api.github.com/search/users?q=${encodeURIComponent(info.email)}`, {
       headers: getHeaders(options)
     });
-    authorInfo.login = data.items[0].login;
+    info.login = data.items[0].login;
   } catch {}
 
-  if (authorInfo.login) {
-    return authorInfo;
-  }
+  if (info.login) return info;
 
   if (info.commits.length) {
     try {
       const data = await $fetch(`https://api.github.com/repos/${options.github}/commits/${info.commits[0]}`, {
         headers: getHeaders(options)
       });
-      authorInfo.login = data.author.login;
-    } catch {}
+      info.login = data.author.login;
+    } catch (e) {}
   }
 
-  return authorInfo;
+  return info;
 }
 
 export async function resolveAuthors(commits: Commit[], options: ChangelogOptions) {
