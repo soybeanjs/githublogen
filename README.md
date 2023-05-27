@@ -47,8 +47,3 @@ You can put a configuration file in the project root, named as `githublogen.conf
 ```bash
 npx githublogen --dry
 ```
-
-
-
-
-
