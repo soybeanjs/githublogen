@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: 16.x
 
-      - run: changelogithub
+      - run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
