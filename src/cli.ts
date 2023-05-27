@@ -89,7 +89,7 @@ cli.command('').action(async (args: any) => {
 
       await execa('git', ['add', '.']);
 
-      await execa('git', ['commit', '-m', 'docs(projects): CHANGELOG.md'], { cwd });
+      await execa('git', ['commit', '-m docs(projects): CHANGELOG.md'], { cwd });
 
       await execa('git', ['push', pushUrl, `HEAD:${config.gitMainBranch}`], { cwd });
     }
