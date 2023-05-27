@@ -72,6 +72,7 @@
     "eslint-config-soybeanjs": "0.4.6",
     "lint-staged": "13.2.2",
     "simple-git-hooks": "2.8.1",
+    "tsx": "^3.12.7",
     "typescript": "5.0.4",
     "unbuild": "1.2.1"
   },
