@@ -9,11 +9,17 @@ export async function getGitHubRepo() {
   return `${match[1]}/${match[2]}`;
 }
 
+export async function getGitMainBranchName() {
+  const main = await execCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+
+  return main;
+}
+
 export async function getCurrentGitBranch() {
   const result1 = await execCommand('git', ['tag', '--points-at', 'HEAD']);
-  const result2 = await execCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+  const main = getGitMainBranchName();
 
-  return result1 || result2;
+  return result1 || main;
 }
 
 export async function isRepoShallow() {
