@@ -19,6 +19,7 @@ export interface ChangelogConfig {
   to: string;
   newVersion?: string;
   output: string | boolean;
+  gitMainBranch: string;
 }
 
 export interface GitCommitAuthor {

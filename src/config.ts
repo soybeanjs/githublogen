@@ -6,6 +6,7 @@ const defaultConfig: ChangelogOptions = {
   cwd: process.cwd(),
   from: '',
   to: '',
+  gitMainBranch: 'main',
   scopeMap: {},
   repo: {},
   types: {

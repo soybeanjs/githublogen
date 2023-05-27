@@ -6,7 +6,7 @@ import cac from 'cac';
 import { version } from '../package.json';
 import { generate } from './generate';
 import { hasTagOnGitHub, sendRelease } from './github';
-import { isRepoShallow, getGitPushUrl, getGitMainBranchName } from './git';
+import { isRepoShallow, getGitPushUrl } from './git';
 import type { ChangelogOptions } from './types';
 
 const cli = cac('githublogen');
@@ -83,8 +83,6 @@ cli.command('').action(async (args: any) => {
 
       const { email = 'unknow@unknow.com', name = 'unknow' } = commits[0]?.author || {};
 
-      const branchMain = await getGitMainBranchName();
-
       await execa('git', ['config', '--global', 'user.email', `"${email}"`]);
 
       await execa('git', ['config', '--global', 'user.name', `"${name}"`]);
@@ -93,7 +91,7 @@ cli.command('').action(async (args: any) => {
 
       await execa('git', ['commit', '-m', '"docs(projects): CHANGELOG.md"'], { cwd });
 
-      await execa('git', ['push', pushUrl, `HEAD:${branchMain}`], { cwd });
+      await execa('git', ['push', pushUrl, `HEAD:${config.gitMainBranch}`], { cwd });
     }
 
     if (!(await hasTagOnGitHub(config.to, config))) {
