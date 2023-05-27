@@ -1,0 +1,8 @@
+{
+  "extends": "soybeanjs",
+  "rules": {
+    "no-console": "off",
+    "no-useless-escape": "off",
+    "require-atomic-updates": "off"
+  }
+}
