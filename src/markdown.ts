@@ -1,7 +1,6 @@
 import { convert } from 'convert-gitmoji';
-import { upperFirst } from 'scule';
+import { upperFirst, partition, groupBy, capitalize, join } from './shared';
 import { $fetch } from 'ohmyfetch';
-import { partition, groupBy, capitalize, join } from './shared';
 import { formatReference } from './repo';
 import type { Reference, Commit, ResolvedChangelogOptions, RepoConfig, GitCommit, ChangelogConfig } from './types';
 

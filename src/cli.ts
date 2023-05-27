@@ -3,7 +3,6 @@ import { existsSync, promises as fsp } from 'node:fs';
 import { blue, bold, cyan, dim, red, yellow } from 'kolorist';
 import { execa } from 'execa';
 import cac from 'cac';
-import type { Argv } from 'mri';
 import { version } from '../package.json';
 import { generate } from './generate';
 import { hasTagOnGitHub, sendRelease } from './github';
@@ -29,7 +28,7 @@ cli
   .option('--dry', 'Dry run')
   .help();
 
-cli.command('').action(async (args: Argv) => {
+cli.command('').action(async (args: any) => {
   try {
     console.log();
     console.log(dim(`${bold('github')}logen `) + dim(`v${version}`));
