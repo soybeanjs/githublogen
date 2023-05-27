@@ -29,6 +29,8 @@ cli
 cli.command('').action(async args => {
   args.token = args.token || process.env.GITHUB_TOKEN;
 
+  console.log('args.token: ', args.token);
+
   try {
     console.log();
     console.log(dim(`${bold('github')}logen `) + dim(`v${version}`));

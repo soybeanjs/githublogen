@@ -69,8 +69,12 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
     const data = await $fetch(`https://api.github.com/search/users?q=${encodeURIComponent(info.email)}`, {
       headers: getHeaders(options)
     });
+    console.log('fetch github user: ', data);
     authorInfo.login = data.items[0].login;
-  } catch {}
+  } catch (error) {
+    console.log('error: ', error);
+    console.log('error fetch github user');
+  }
 
   if (info.login) return info;
 
@@ -79,8 +83,12 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
       const data = await $fetch(`https://api.github.com/repos/${options.github}/commits/${info.commits[0]}`, {
         headers: getHeaders(options)
       });
+      console.log('data: ', data);
       authorInfo.login = data.author.login;
-    } catch (e) {}
+    } catch (e) {
+      console.log('e: ', e);
+      console.log('error fetch github commit');
+    }
   }
 
   return authorInfo;

@@ -96,7 +96,9 @@ export function generateMarkdown(commits: Commit[], options: ResolvedChangelogOp
     lines.push(...formatSection(items, options.types[type].title, options));
   }
 
-  if (!lines.length) lines.push('*No significant changes*');
+  if (!lines.length) {
+    lines.push('*No significant changes*');
+  }
 
   const url = `https://github.com/${options.github}/compare/${options.from}...${options.to}`;
 
