@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: 16.x
 
-      - run: ./dist/cli.mjs
+      - run: ./../../dist/cli.mjs
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
