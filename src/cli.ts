@@ -81,6 +81,12 @@ cli.command('').action(async (args: any) => {
 
       await fsp.writeFile(config.output, changelogMD);
 
+      const { email = 'unknow@unknow.com', name = 'unknow' } = commits[0]?.author || {};
+
+      await execa('git', ['config', '--global', 'user.email', `"${email}"`]);
+
+      await execa('git', ['config', '--global', 'user.name', `"${name}"`]);
+
       await execa('git', ['add', '.']);
 
       await execa('git', ['commit', '-m', '"docs(projects): CHANGELOG.md"'], { cwd });
