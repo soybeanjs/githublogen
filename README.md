@@ -2,6 +2,8 @@
 
 Generate changelog for GitHub releases from [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), powered by [changelogithub](https://github.com/antfu/changelogithub).
 
+Auto Generate CHANGELOG.md from [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), powered by [changelogen](https://github.com/unjs/changelogen).
+
 ## Usage
 
 In GitHub Actions:
