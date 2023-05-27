@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-import fs from 'node:fs/promises';
+import { existsSync, promises as fsp } from 'node:fs';
 import { blue, bold, cyan, dim, red, yellow } from 'kolorist';
+import { execa } from 'execa';
 import cac from 'cac';
+import type { Argv } from 'mri';
 import { version } from '../package.json';
 import { generate } from './generate';
 import { hasTagOnGitHub, sendRelease } from './github';
 import { isRepoShallow } from './git';
+import type { ChangelogOptions } from './types';
 
 const cli = cac('githublogen');
 
@@ -26,19 +29,21 @@ cli
   .option('--dry', 'Dry run')
   .help();
 
-cli.command('').action(async args => {
-  args.token = args.token || process.env.GITHUB_TOKEN;
-
+cli.command('').action(async (args: Argv) => {
   try {
     console.log();
     console.log(dim(`${bold('github')}logen `) + dim(`v${version}`));
 
-    const { config, md, commits } = await generate(args as any);
+    const cwd = process.cwd();
+
+    const { config, md, changelog, commits } = await generate(cwd, args as unknown as ChangelogOptions);
+
+    const markdown = md.replace(/&nbsp;/g, '');
 
     console.log(cyan(config.from) + dim(' -> ') + blue(config.to) + dim(` (${commits.length} commits)`));
     console.log(dim('--------------'));
     console.log();
-    console.log(md.replace(/&nbsp;/g, ''));
+    console.log(markdown);
     console.log();
     console.log(dim('--------------'));
 
@@ -47,16 +52,35 @@ cli.command('').action(async args => {
       return;
     }
 
-    if (!config.token) {
-      console.error(red('No GitHub token found, specify it via GITHUB_TOKEN env. Release skipped.'));
-      process.exitCode = 1;
-      return;
-    }
-
     if (typeof config.output === 'string') {
-      await fs.writeFile(config.output, md, 'utf-8');
-      console.log(yellow(`Saved to ${config.output}`));
-      return;
+      let changelogMD: string;
+      const changelogPrefix = '# Changelog';
+      if (existsSync(config.output)) {
+        console.info(`Updating ${config.output}`);
+        changelogMD = await fsp.readFile(config.output, 'utf8');
+        if (!changelogMD.startsWith(changelogPrefix)) {
+          changelogMD = `${changelogPrefix}\n\n${changelogMD}`;
+        }
+      } else {
+        console.info(`Creating  ${config.output}`);
+        changelogMD = `${changelogPrefix}\n\n`;
+      }
+
+      const lastEntry = changelogMD.match(/^###?\s+.*$/m);
+
+      if (lastEntry) {
+        changelogMD = `${changelogMD.slice(0, lastEntry.index) + changelog}\n\n${changelogMD.slice(lastEntry.index)}`;
+      } else {
+        changelogMD += `\n${changelog}\n\n`;
+      }
+
+      await fsp.writeFile(config.output, changelogMD);
+
+      await execa('git', ['add', '.']);
+
+      await execa('git', ['commit', '-m', 'docs(projects): CHANGELOG.md'], { cwd });
+
+      await execa('git', ['push'], { cwd });
     }
 
     if (!(await hasTagOnGitHub(config.to, config))) {

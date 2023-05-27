@@ -16,9 +16,18 @@ dependencies:
   kolorist:
     specifier: 1.8.0
     version: 1.8.0
+  mri:
+    specifier: ^1.2.0
+    version: 1.2.0
   ohmyfetch:
     specifier: 0.4.21
     version: 0.4.21
+  pathe:
+    specifier: ^1.1.0
+    version: 1.1.0
+  scule:
+    specifier: ^1.0.0
+    version: 1.0.0
 
 devDependencies:
   '@soybeanjs/cli':
@@ -30,6 +39,9 @@ devDependencies:
   bumpp:
     specifier: 9.1.0
     version: 9.1.0
+  changelogen:
+    specifier: ^0.5.3
+    version: 0.5.3
   eslint:
     specifier: 8.41.0
     version: 8.41.0
@@ -4584,7 +4596,6 @@ packages:
 
   /scule@1.0.0:
     resolution: {integrity: sha512-4AsO/FrViE/iDNEPaAQlb77tf0csuq27EsVpy6ett584EcRTp6pTDLoGWVxCD77y5iU5FauOvhsI4o1APwPoSQ==}
-    dev: true
 
   /semver-diff@4.0.0:
     resolution: {integrity: sha512-0Ju4+6A8iOnpL/Thra7dZsSlOHYAHIeMxfhWQRI1/VLcT3WDBZKKtQt/QkBOsiIN9ZpuvHE6cGZ0x4glCMmfiA==}

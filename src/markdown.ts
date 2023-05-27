@@ -1,6 +1,9 @@
 import { convert } from 'convert-gitmoji';
+import { upperFirst } from 'scule';
+import { $fetch } from 'ohmyfetch';
 import { partition, groupBy, capitalize, join } from './shared';
-import type { Reference, Commit, ResolvedChangelogOptions } from './types';
+import { formatReference } from './repo';
+import type { Reference, Commit, ResolvedChangelogOptions, RepoConfig, GitCommit, ChangelogConfig } from './types';
 
 const emojisRE =
   /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g;
@@ -32,8 +35,8 @@ function formatReferences(references: Reference[], github: string, type: 'issues
 }
 
 function formatLine(commit: Commit, options: ResolvedChangelogOptions) {
-  const prRefs = formatReferences(commit.references, options.github, 'issues');
-  const hashRefs = formatReferences(commit.references, options.github, 'hash');
+  const prRefs = formatReferences(commit.references, options.repo.repo || '', 'issues');
+  const hashRefs = formatReferences(commit.references, options.repo.repo || '', 'hash');
 
   let authors = join([
     ...new Set(commit.resolvedAuthors?.map(i => (i.login ? `@${i.login}` : `**${i.name}**`)))
@@ -54,13 +57,13 @@ function formatLine(commit: Commit, options: ResolvedChangelogOptions) {
 }
 
 function formatTitle(name: string, options: ResolvedChangelogOptions) {
-  let formatName = name.trim();
+  let $name = name.trim();
 
   if (!options.emoji) {
-    formatName = name.replace(emojisRE, '').trim();
+    $name = name.replace(emojisRE, '').trim();
   }
 
-  return `### &nbsp;&nbsp;&nbsp;${formatName}`;
+  return `### &nbsp;&nbsp;&nbsp;${$name}`;
 }
 
 function formatSection(commits: Commit[], sectionName: string, options: ResolvedChangelogOptions) {
@@ -115,9 +118,130 @@ export function generateMarkdown(commits: Commit[], options: ResolvedChangelogOp
     lines.push('*No significant changes*');
   }
 
-  const url = `https://github.com/${options.github}/compare/${options.from}...${options.to}`;
+  const url = `https://github.com/${options.repo.repo!}/compare/${options.from}...${options.to}`;
 
   lines.push('', `##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](${url})`);
 
   return convert(lines.join('\n').trim(), true);
+}
+
+export async function generateChangelog(commits: Commit[], config: ResolvedChangelogOptions) {
+  const typeGroups = groupBy(commits, 'type');
+
+  const markdown: string[] = [];
+  const breakingChanges: string[] = [];
+
+  // Version Title
+  const v = config.newVersion && `v${config.newVersion}`;
+  markdown.push('', `## ${v || `${config.from || ''}...${config.to}`}`, '');
+
+  if (config.repo && config.from) {
+    markdown.push(formatCompareChanges(v, config));
+  }
+
+  const typeKeys = Object.keys(config.types);
+  typeKeys.forEach(typeKey => {
+    const group = typeGroups[typeKey];
+
+    if (group?.length) {
+      markdown.push('', `### ${config.types[typeKey].title}`, '');
+      for (const commit of group.reverse()) {
+        const line = formatCommit(commit, config);
+        markdown.push(line);
+        if (commit.isBreaking) {
+          breakingChanges.push(line);
+        }
+      }
+    }
+  });
+
+  if (breakingChanges.length > 0) {
+    markdown.push('', '#### ⚠️  Breaking Changes', '', ...breakingChanges);
+  }
+
+  const authorMap = new Map<string, { email: Set<string>; github?: string }>();
+
+  commits.forEach(commit => {
+    const name = formatName(commit.author?.name || '');
+
+    if (name && !name.includes('[bot]')) {
+      if (!authorMap.has(name)) {
+        authorMap.set(name, { email: new Set([commit.author.email]) });
+      } else {
+        const entry = authorMap.get(name);
+        entry?.email?.add(commit.author.email);
+      }
+    }
+  });
+
+  // Try to map authors to github usernames
+  await Promise.all(
+    [...authorMap.keys()].map(async authorName => {
+      const meta = authorMap.get(authorName);
+      if (meta) {
+        for (const email of meta.email) {
+          try {
+            // eslint-disable-next-line no-await-in-loop
+            const { user } = await $fetch(`https://ungh.cc/users/find/${email}`);
+            if (user) {
+              meta.github = user.username;
+              break;
+            }
+          } catch {}
+        }
+      }
+    })
+  );
+
+  const authors = [...authorMap.entries()].map(e => ({ name: e[0], ...e[1] }));
+
+  if (authors.length > 0) {
+    markdown.push(
+      '',
+      '### ❤️ Contributors',
+      '',
+      ...authors.map(i => {
+        const $email = [...i.email].find(e => !e.includes('noreply.github.com'));
+        const email = $email ? `<${$email}>` : '';
+        const github = i.github ? `([@${i.github}](http://github.com/${i.github}))` : '';
+        return `- ${i.name} ${github || email}`;
+      })
+    );
+  }
+
+  return convert(markdown.join('\n').trim(), true);
+}
+
+function baseUrl(config: RepoConfig) {
+  return `https://${config.domain}/${config.repo}`;
+}
+
+function formatCompareChanges(v: string, config: ResolvedChangelogOptions) {
+  const part = config.repo.provider === 'bitbucket' ? 'branches/compare' : 'compare';
+  return `[compare changes](${baseUrl(config.repo)}/${part}/${config.from}...${v || config.to})`;
+}
+
+function formatCommit(commit: GitCommit, config: ChangelogConfig) {
+  return `- ${commit.scope ? `**${commit.scope.trim()}:** ` : ''}${commit.isBreaking ? '⚠️  ' : ''}${upperFirst(
+    commit.description
+  )}${formatMultiReference(commit.references, config)}`;
+}
+
+function formatName(name = '') {
+  return name
+    .split(' ')
+    .map(p => upperFirst(p.trim()))
+    .join(' ');
+}
+
+function formatMultiReference(references: Reference[], config: ChangelogConfig) {
+  const pr = references.filter(ref => ref.type === 'pull-request');
+  const issue = references.filter(ref => ref.type === 'issue');
+  if (pr.length > 0 || issue.length > 0) {
+    return ` (${[...pr, ...issue].map(ref => formatReference(ref, config.repo)).join(', ')})`;
+  }
+  if (references.length > 0) {
+    return ` (${formatReference(references[0], config.repo)})`;
+  }
+  return '';
 }

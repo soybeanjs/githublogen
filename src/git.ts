@@ -73,3 +73,7 @@ export async function getGitDiff(from: string | undefined, to = 'HEAD'): Promise
       return $r;
     });
 }
+
+export function getGitRemoteURL(cwd: string, remote = 'origin') {
+  return execCommand('git', [`--work-tree=${cwd}`, 'remote', 'get-url', remote]);
+}

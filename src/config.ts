@@ -1,12 +1,13 @@
-import { getCurrentGitBranch, getFirstGitCommit, getGitHubRepo, getLastGitTag, isPrerelease } from './git';
+import { getCurrentGitBranch, getFirstGitCommit, getLastGitTag, isPrerelease } from './git';
+import { resolveRepoConfig } from './repo';
 import type { ChangelogOptions, ResolvedChangelogOptions } from './types';
 
-export function defineConfig(config: ChangelogOptions) {
-  return config;
-}
-
 const defaultConfig: ChangelogOptions = {
+  cwd: process.cwd(),
+  from: '',
+  to: '',
   scopeMap: {},
+  repo: {},
   types: {
     feat: { title: '🚀 Features' },
     fix: { title: '🐞 Bug Fixes' },
@@ -24,12 +25,16 @@ const defaultConfig: ChangelogOptions = {
   titles: {
     breakingChanges: '🚨 Breaking Changes'
   },
+  tokens: {
+    github: process.env.CHANGELOGEN_TOKENS_GITHUB || process.env.GITHUB_TOKEN || process.env.GH_TOKEN
+  },
+  output: 'CHANGELOG.md',
   contributors: true,
   capitalize: true,
   group: true
 };
 
-export async function resolveConfig(options: ChangelogOptions) {
+export async function resolveConfig(cwd: string, options: ChangelogOptions) {
   const { loadConfig } = await import('c12');
   const config = await loadConfig<ChangelogOptions>({
     name: 'githublogen',
@@ -39,7 +44,7 @@ export async function resolveConfig(options: ChangelogOptions) {
 
   config.from = config.from || (await getLastGitTag());
   config.to = config.to || (await getCurrentGitBranch());
-  config.github = config.github || (await getGitHubRepo());
+  config.repo = await resolveRepoConfig(cwd);
   config.prerelease = config.prerelease ?? isPrerelease(config.to);
 
   if (config.to === config.from) {
