@@ -29,8 +29,6 @@ cli
 cli.command('').action(async args => {
   args.token = args.token || process.env.GITHUB_TOKEN;
 
-  console.log('args.token: ', args.token);
-
   try {
     console.log();
     console.log(dim(`${bold('github')}logen `) + dim(`v${version}`));
@@ -80,7 +78,10 @@ cli.command('').action(async args => {
     await sendRelease(config, md);
   } catch (e: any) {
     console.error(red(String(e)));
-    if (e?.stack) console.error(dim(e.stack?.split('\n').slice(1).join('\n')));
+    if (e?.stack) {
+      console.error(dim(e.stack?.split('\n').slice(1).join('\n')));
+    }
+
     process.exit(1);
   }
 });

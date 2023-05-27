@@ -46,7 +46,5 @@ export async function resolveConfig(options: ChangelogOptions) {
     config.from = (await getLastGitTag(-1)) || (await getFirstGitCommit());
   }
 
-  console.log('resolveConfig => config.token: ', config.token);
-
   return config as ResolvedChangelogOptions;
 }

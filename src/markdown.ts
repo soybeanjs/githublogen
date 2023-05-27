@@ -8,19 +8,26 @@ const emojisRE =
 function formatReferences(references: Reference[], github: string, type: 'issues' | 'hash'): string {
   const refs = references
     .filter(i => {
-      if (type === 'issues') return i.type === 'issue' || i.type === 'pull-request';
+      if (type === 'issues') {
+        return i.type === 'issue' || i.type === 'pull-request';
+      }
       return i.type === 'hash';
     })
     .map(ref => {
-      if (!github) return ref.value;
-      if (ref.type === 'pull-request' || ref.type === 'issue')
+      if (!github) {
+        return ref.value;
+      }
+      if (ref.type === 'pull-request' || ref.type === 'issue') {
         return `https://github.com/${github}/issues/${ref.value.slice(1)}`;
+      }
       return `[<samp>(${ref.value.slice(0, 5)})</samp>](https://github.com/${github}/commit/${ref.value})`;
     });
 
   const referencesString = join(refs).trim();
 
-  if (type === 'issues') return referencesString && `in ${referencesString}`;
+  if (type === 'issues') {
+    return referencesString && `in ${referencesString}`;
+  }
   return referencesString;
 }
 
@@ -31,11 +38,15 @@ function formatLine(commit: Commit, options: ResolvedChangelogOptions) {
   let authors = join([
     ...new Set(commit.resolvedAuthors?.map(i => (i.login ? `@${i.login}` : `**${i.name}**`)))
   ])?.trim();
-  if (authors) authors = `by ${authors}`;
+  if (authors) {
+    authors = `by ${authors}`;
+  }
 
   let refs = [authors, prRefs, hashRefs].filter(i => i?.trim()).join(' ');
 
-  if (refs) refs = `&nbsp;-&nbsp; ${refs}`;
+  if (refs) {
+    refs = `&nbsp;-&nbsp; ${refs}`;
+  }
 
   const description = options.capitalize ? capitalize(commit.description) : commit.description;
 
@@ -53,7 +64,9 @@ function formatTitle(name: string, options: ResolvedChangelogOptions) {
 }
 
 function formatSection(commits: Commit[], sectionName: string, options: ResolvedChangelogOptions) {
-  if (!commits.length) return [];
+  if (!commits.length) {
+    return [];
+  }
 
   const lines: string[] = ['', formatTitle(sectionName, options), ''];
 
@@ -61,7 +74,9 @@ function formatSection(commits: Commit[], sectionName: string, options: Resolved
   let useScopeGroup = options.group;
 
   // group scopes only when one of the scope have multiple commits
-  if (!Object.entries(scopes).some(([k, v]) => k && v.length > 1)) useScopeGroup = false;
+  if (!Object.entries(scopes).some(([k, v]) => k && v.length > 1)) {
+    useScopeGroup = false;
+  }
 
   Object.keys(scopes)
     .sort()

@@ -69,26 +69,20 @@ export async function resolveAuthorInfo(options: ChangelogOptions, info: AuthorI
     const data = await $fetch(`https://api.github.com/search/users?q=${encodeURIComponent(info.email)}`, {
       headers: getHeaders(options)
     });
-    console.log('fetch github user: ', data);
     authorInfo.login = data.items[0].login;
-  } catch (error) {
-    console.log('error: ', error);
-    console.log('error fetch github user');
-  }
+  } catch {}
 
-  if (info.login) return info;
+  if (authorInfo.login) {
+    return authorInfo;
+  }
 
   if (info.commits.length) {
     try {
       const data = await $fetch(`https://api.github.com/repos/${options.github}/commits/${info.commits[0]}`, {
         headers: getHeaders(options)
       });
-      console.log('data: ', data);
       authorInfo.login = data.author.login;
-    } catch (e) {
-      console.log('e: ', e);
-      console.log('error fetch github commit');
-    }
+    } catch {}
   }
 
   return authorInfo;
@@ -99,7 +93,10 @@ export async function resolveAuthors(commits: Commit[], options: ChangelogOption
   commits.forEach(commit => {
     commit.resolvedAuthors = commit.authors
       .map((a, idx) => {
-        if (!a.email || !a.name) return null;
+        if (!a.email || !a.name) {
+          return null;
+        }
+
         if (!map.has(a.email)) {
           map.set(a.email, {
             commits: [],
@@ -110,7 +107,9 @@ export async function resolveAuthors(commits: Commit[], options: ChangelogOption
         const info = map.get(a.email)!;
 
         // record commits only for the first author
-        if (idx === 0) info.commits.push(commit.shortHash);
+        if (idx === 0) {
+          info.commits.push(commit.shortHash);
+        }
 
         return info;
       })
@@ -124,11 +123,15 @@ export async function resolveAuthors(commits: Commit[], options: ChangelogOption
   return resolved
     .sort((a, b) => (a.login || a.name).localeCompare(b.login || b.name))
     .filter(i => {
-      if (i.login && loginSet.has(i.login)) return false;
+      if (i.login && loginSet.has(i.login)) {
+        return false;
+      }
       if (i.login) {
         loginSet.add(i.login);
       } else {
-        if (nameSet.has(i.name)) return false;
+        if (nameSet.has(i.name)) {
+          return false;
+        }
         nameSet.add(i.name);
       }
       return true;

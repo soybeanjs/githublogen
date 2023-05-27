@@ -12,7 +12,8 @@ export async function generate(options: ChangelogOptions) {
   const commits = parseCommits(rawCommits, resolved);
 
   if (resolved.contributors) {
-    await resolveAuthors(commits, resolved);
+    const authorInfo = await resolveAuthors(commits, resolved);
+    Object.assign(resolved, authorInfo);
   }
 
   const md = generateMarkdown(commits, resolved);
