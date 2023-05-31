@@ -66,13 +66,12 @@
     "ohmyfetch": "0.4.21"
   },
   "devDependencies": {
-    "@soybeanjs/cli": "0.2.11",
+    "@soybeanjs/cli": "0.4.1",
     "@types/node": "20.2.5",
     "bumpp": "9.1.0",
     "changelogen": "^0.5.3",
     "eslint": "8.41.0",
-    "eslint-config-soybeanjs": "0.4.6",
-    "lint-staged": "13.2.2",
+    "eslint-config-soybeanjs": "0.4.8",
     "simple-git-hooks": "2.8.1",
     "tsx": "^3.12.7",
     "typescript": "5.0.4",
@@ -80,10 +79,6 @@
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm soy git-commit-verify",
-    "pre-commit": "pnpm lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,mjs,jsx,ts,mts,tsx,json,vue,svelte}": "eslint . --fix",
-    "*.!{js,mjs,jsx,ts,mts,tsx,json,vue,svelte}": "format"
+    "pre-commit": "pnpm soy lint-staged"
   }
 }
