@@ -2,7 +2,7 @@ import { convert } from 'convert-gitmoji';
 import { upperFirst, partition, groupBy, capitalize, join } from './shared';
 import { $fetch } from 'ohmyfetch';
 import { formatReference } from './repo';
-import type { Reference, Commit, ResolvedChangelogOptions, RepoConfig, GitCommit, ChangelogConfig } from './types';
+import type { Reference, Commit, ResolvedChangelogOptions, GitCommit, ChangelogConfig } from './types';
 
 const emojisRE =
   /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g;
@@ -132,11 +132,7 @@ export async function generateChangelog(commits: Commit[], config: ResolvedChang
 
   // Version Title
   const v = config.newVersion && `v${config.newVersion}`;
-  markdown.push('', `## ${v || `${config.from || ''}...${config.to}`}`, '');
-
-  if (config.repo && config.from) {
-    markdown.push(formatCompareChanges(v, config));
-  }
+  markdown.push('', `## ${v}`, '');
 
   const typeKeys = Object.keys(config.types);
   typeKeys.forEach(typeKey => {
@@ -209,15 +205,6 @@ export async function generateChangelog(commits: Commit[], config: ResolvedChang
   }
 
   return convert(markdown.join('\n').trim(), true);
-}
-
-function baseUrl(config: RepoConfig) {
-  return `https://${config.domain}/${config.repo}`;
-}
-
-function formatCompareChanges(v: string, config: ResolvedChangelogOptions) {
-  const part = config.repo.provider === 'bitbucket' ? 'branches/compare' : 'compare';
-  return `[compare changes](${baseUrl(config.repo)}/${part}/${config.from}...${v || config.to})`;
 }
 
 function formatCommit(commit: GitCommit, config: ChangelogConfig) {
