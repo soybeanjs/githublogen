@@ -22,17 +22,11 @@ dependencies:
 
 devDependencies:
   '@soybeanjs/cli':
-    specifier: 0.4.2
-    version: 0.4.2
+    specifier: 0.5.0
+    version: 0.5.0
   '@types/node':
     specifier: 20.2.5
     version: 20.2.5
-  bumpp:
-    specifier: 9.1.0
-    version: 9.1.0
-  changelogen:
-    specifier: ^0.5.3
-    version: 0.5.3
   eslint:
     specifier: 8.42.0
     version: 8.42.0
@@ -846,12 +840,13 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /@soybeanjs/cli@0.4.2:
-    resolution: {integrity: sha512-z+firg1gsKDgLFJRVJ4m13IRVAk2TIDqTLbwixYcaeV/MbI0ypYdAgV43MV3TgqlMlhL0B+uL8IXgWx1VTzF2w==}
+  /@soybeanjs/cli@0.5.0:
+    resolution: {integrity: sha512-VYILD/NpBIbR+2wLdS3IbFjJGeMX7dplVAwIhYtO5w3HsrdK/GggyjlJ0Zh6/ILYCsyJ4KAFovz1RIBs8o07AA==}
     hasBin: true
     dependencies:
       bumpp: 9.1.0
       cac: 6.7.14
+      cli-progress: 3.12.0
       convert-gitmoji: 0.1.3
       dayjs: 1.11.8
       enquirer: 2.3.6
@@ -1504,28 +1499,6 @@ packages:
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
     dev: true
 
-  /changelogen@0.5.3:
-    resolution: {integrity: sha512-RjTrgJlTHhbGlMo/s73j7uSTspla3ykr0UA5zwRs/HIZvElY6qZHu3X70httgC2Du5poS2wFCS10WLfwZr7ZTQ==}
-    hasBin: true
-    dependencies:
-      c12: 1.4.1
-      colorette: 2.0.20
-      consola: 3.1.0
-      convert-gitmoji: 0.1.3
-      execa: 7.1.1
-      mri: 1.2.0
-      node-fetch-native: 1.1.1
-      ofetch: 1.0.1
-      open: 9.1.0
-      pathe: 1.1.1
-      pkg-types: 1.0.3
-      scule: 1.0.0
-      semver: 7.5.1
-      yaml: 2.3.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /chokidar@3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
     engines: {node: '>= 8.10.0'}
@@ -1564,6 +1537,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       restore-cursor: 3.1.0
+    dev: true
+
+  /cli-progress@3.12.0:
+    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
+    engines: {node: '>=4'}
+    dependencies:
+      string-width: 4.2.3
     dev: true
 
   /cli-table3@0.6.3:
