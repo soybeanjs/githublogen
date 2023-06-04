@@ -70,12 +70,13 @@
     "eslint": "8.42.0",
     "eslint-config-soybeanjs": "0.4.8",
     "simple-git-hooks": "2.8.1",
-    "tsx": "^3.12.7",
+    "tsx": "3.12.7",
     "typescript": "5.1.3",
     "unbuild": "1.2.1"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm soy git-commit-verify",
     "pre-commit": "pnpm soy lint-staged"
-  }
+  },
+  "github-token": "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"
 }
