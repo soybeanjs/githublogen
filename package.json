@@ -46,7 +46,7 @@
     "node": ">=12.0.0"
   },
   "scripts": {
-    "build": "npx typecheck unbuild",
+    "build": "pnpm typecheck && unbuild",
     "lint": "eslint . --fix",
     "format": "soy prettier-format",
     "commit": "soy git-commit",
