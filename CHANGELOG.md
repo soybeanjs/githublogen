@@ -1,6 +1,22 @@
 # Changelog
 
 
+## [v0.2.2](https://github.com/soybeanjs/githublogen/compare/v0.2.1...main)
+
+### 📖 Documentation
+
+- **projects**: Update CHANGELOG.md - by @soybeanjs [<samp>(2494e)</samp>](https://github.com/soybeanjs/githublogen/commit/2494e72)
+
+### 🏡 Chore
+
+- **projects**: Remove auto generate CHANGELOG.md & update deps - by @soybeanjs [<samp>(2d706)</samp>](https://github.com/soybeanjs/githublogen/commit/2d70630)
+- **projects**: Remove bumpp & add soy release - by @soybeanjs [<samp>(1437c)</samp>](https://github.com/soybeanjs/githublogen/commit/1437c14)
+- **projects**: Update config - by @soybeanjs [<samp>(79695)</samp>](https://github.com/soybeanjs/githublogen/commit/79695aa)
+
+### ❤️ Contributors
+
+![soybeanjs](https://github.com/soybeanjs.png?size=48)
+
 ## [v0.2.1](https://github.com/soybeanjs/githublogen/compare/v0.2.0...v0.2.1) (2023-06-01)
 
 ### 🔥 Performance
