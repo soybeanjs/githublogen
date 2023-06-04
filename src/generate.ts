@@ -1,5 +1,5 @@
 import { getGitDiff } from './git';
-import { generateMarkdown, generateChangelog } from './markdown';
+import { generateMarkdown } from './markdown';
 import { resolveAuthors } from './github';
 import { resolveConfig } from './config';
 import { parseCommits } from './parse';
@@ -17,7 +17,5 @@ export async function generate(cwd: string, options: ChangelogOptions) {
 
   const md = generateMarkdown(commits, resolved);
 
-  const changelog = await generateChangelog(commits, resolved);
-
-  return { config: resolved, md, commits, changelog };
+  return { config: resolved, md, commits };
 }

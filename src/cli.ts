@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-import { existsSync, promises as fsp } from 'node:fs';
 import { blue, bold, cyan, dim, red, yellow } from 'kolorist';
-import { execa } from 'execa';
 import cac from 'cac';
 import { version } from '../package.json';
 import { generate } from './generate';
 import { hasTagOnGitHub, sendRelease } from './github';
-import { isRepoShallow, getGitPushUrl } from './git';
+import { isRepoShallow } from './git';
 import type { ChangelogOptions } from './types';
 
 const cli = cac('githublogen');
@@ -35,7 +33,7 @@ cli.command('').action(async (args: any) => {
 
     const cwd = process.cwd();
 
-    const { config, md, changelog, commits } = await generate(cwd, args as unknown as ChangelogOptions);
+    const { config, md, commits } = await generate(cwd, args as unknown as ChangelogOptions);
 
     const markdown = md.replace(/&nbsp;/g, '');
 
@@ -49,49 +47,6 @@ cli.command('').action(async (args: any) => {
     if (config.dry) {
       console.log(yellow('Dry run. Release skipped.'));
       return;
-    }
-
-    if (typeof config.output === 'string') {
-      const pushUrl = getGitPushUrl(config.repo, config.tokens.github);
-
-      if (!pushUrl) {
-        return;
-      }
-
-      let changelogMD: string;
-      const changelogPrefix = '# Changelog';
-      if (existsSync(config.output)) {
-        console.info(`Updating ${config.output}`);
-        changelogMD = await fsp.readFile(config.output, 'utf8');
-        if (!changelogMD.startsWith(changelogPrefix)) {
-          changelogMD = `${changelogPrefix}\n\n${changelogMD}`;
-        }
-      } else {
-        console.info(`Creating  ${config.output}`);
-        changelogMD = `${changelogPrefix}\n\n`;
-      }
-
-      const lastEntry = changelogMD.match(/^###?\s+.*$/m);
-
-      if (lastEntry) {
-        changelogMD = `${changelogMD.slice(0, lastEntry.index) + changelog}\n\n${changelogMD.slice(lastEntry.index)}`;
-      } else {
-        changelogMD += `\n${changelog}\n\n`;
-      }
-
-      await fsp.writeFile(config.output, changelogMD);
-
-      const { email = 'unknow@unknow.com', name = 'unknow' } = commits[0]?.author || {};
-
-      await execa('git', ['config', '--global', 'user.email', `"${email}"`]);
-
-      await execa('git', ['config', '--global', 'user.name', `"${name}"`]);
-
-      await execa('git', ['add', '.']);
-
-      await execa('git', ['commit', '-m docs(projects): CHANGELOG.md'], { cwd });
-
-      await execa('git', ['push', pushUrl, `HEAD:${config.gitMainBranch}`], { cwd });
     }
 
     if (!(await hasTagOnGitHub(config.to, config))) {
